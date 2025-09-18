@@ -3,8 +3,8 @@
   "private": false,
   "version": "0.0.2",
   "type": "module",
-  "main": "./dist/kalidasa.umd.js",
-  "module": "./dist/kalidasa.es.js",
+  "main": "./dist/kalidas.umd.js",
+  "module": "./dist/kalidas.es.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
@@ -13,7 +13,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "watch": "vite build --watch"
   },
   "dependencies": {
     "@tiptap/react": "^3.4.4",
@@ -35,6 +36,7 @@
     "globals": "^16.4.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.43.0",
-    "vite": "^7.1.6"
+    "vite": "^7.1.6",
+    "vite-plugin-dts": "^4.5.4"
   }
 }
