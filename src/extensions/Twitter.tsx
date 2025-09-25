@@ -1,0 +1,106 @@
+import { mergeAttributes, Node, nodePasteRule } from "@tiptap/core";
+import { ReactNodeViewRenderer, NodeViewWrapper } from "@tiptap/react";
+import { Plugin } from "prosemirror-state";
+import React from "react";
+import { Tweet } from "react-tweet";
+
+// Regex to detect Twitter/X status URLs
+const TWITTER_REGEX =
+  /https?:\/\/(?:www\.)?(?:twitter\.com|x\.com)\/[A-Za-z0-9_]+\/status\/([0-9]+)/i;
+
+const TweetComponent = ({ node }: { node: any }) => {
+  const src = node.attrs.src as string;
+  const id = src.match(TWITTER_REGEX)?.[1];
+
+  if (!id) {
+    return (
+      <NodeViewWrapper as="div" className="my-4 flex justify-center" data-twitter>
+        <p>Invalid Tweet</p>
+      </NodeViewWrapper>
+    );
+  }
+
+  return (
+    <NodeViewWrapper as="div" className="my-4 flex justify-center" data-twitter>
+      <Tweet id={id} />
+    </NodeViewWrapper>
+  );
+};
+
+// ---- Module augmentation for TS ----
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    twitter: {
+      setTweet: (options: { src: string }) => ReturnType;
+    };
+  }
+}
+
+// ---- Twitter Extension with Drop ----
+export const Twitter = Node.create({
+  name: "twitter",
+  group: "block",
+  atom: true,
+  draggable: true,
+
+  addAttributes() {
+    return {
+      src: { default: null },
+    };
+  },
+
+  parseHTML() {
+    return [{ tag: "div[data-twitter]" }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ["div", mergeAttributes(HTMLAttributes, { "data-twitter": "" })];
+  },
+
+  addNodeView() {
+    return ReactNodeViewRenderer(TweetComponent);
+  },
+
+  addCommands() {
+    return {
+      setTweet:
+        (options: { src: string }) =>
+        ({ commands }) => {
+          if (!TWITTER_REGEX.test(options.src)) return false;
+
+          return commands.insertContent({
+            type: this.name,
+            attrs: { src: options.src },
+          });
+        },
+    };
+  },
+
+  addPasteRules() {
+    return [
+      nodePasteRule({
+        find: TWITTER_REGEX,
+        type: this.type,
+        getAttributes: (match) => ({ src: match[0] }),
+      }),
+    ];
+  },
+
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        props: {
+          handleDrop: (view, event) => {
+            const text = event.dataTransfer?.getData("text/plain");
+            if (text && TWITTER_REGEX.test(text)) {
+              // Use the extension command to insert tweet
+              this.editor.commands.setTweet({ src: text });
+              return true;
+            }
+            return false;
+          },
+        },
+      }),
+    ];
+  },
+});

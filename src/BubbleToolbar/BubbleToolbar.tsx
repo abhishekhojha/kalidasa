@@ -1,0 +1,98 @@
+import React, { useEffect, useState } from "react";
+import { BubbleMenu } from "@tiptap/react/menus";
+import { type Editor as TiptapEditor } from "@tiptap/react";
+import { useEditorContext } from "../EditorContext";
+
+// Generic editor type for StarterKit commands
+export type StarterKitEditor = TiptapEditor & {
+  chain: () => ReturnType<TiptapEditor["chain"]> & {
+    toggleBold: () => ReturnType<TiptapEditor["chain"]>;
+    toggleItalic: () => ReturnType<TiptapEditor["chain"]>;
+    toggleStrike: () => ReturnType<TiptapEditor["chain"]>;
+    toggleLink: (options?: {
+      href?: string;
+    }) => ReturnType<TiptapEditor["chain"]>;
+  };
+};
+
+// Button type
+export interface BubbleToolbarButton {
+  label: React.ReactNode;
+  command?: (editor: StarterKitEditor) => void;
+  isActive?: (editor: StarterKitEditor) => boolean;
+  className?: string;
+  tooltip?: string;
+  submenu?: BubbleToolbarButton[]; // allow submenu to be passed in
+}
+
+// Toolbar props
+interface BubbleToolbarProps {
+  buttons?: BubbleToolbarButton[];
+}
+
+export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({
+  buttons = [],
+}) => {
+  const { editor } = useEditorContext();
+  if (!editor) return null;
+
+  const typedEditor = editor as StarterKitEditor;
+  const [openSubmenu, setOpenSubmenu] = useState<number | null>(null);
+  console.log(openSubmenu);
+//   useEffect(() => {
+//     if(openSubmenu)
+//     setOpenSubmenu(null);
+//   });
+
+  return (
+    <BubbleMenu
+      editor={typedEditor}
+      options={{ placement: "top" }}
+      shouldShow={() => !typedEditor.state.selection.empty}
+      className="bubble-toolbar"
+    >
+      {buttons.map((btn, idx) => {
+        const isActive = btn.isActive?.(typedEditor);
+        const hasSubmenu = btn.submenu && btn.submenu.length > 0;
+
+        return (
+          <div key={idx} className="bubble-toolbar-item">
+            <button
+              onClick={() => {
+                if (hasSubmenu) {
+                  setOpenSubmenu(openSubmenu === idx ? null : idx);
+                } else {
+                  btn.command?.(typedEditor);
+                  setOpenSubmenu(null);
+                }
+              }}
+              className={`bubble-button ${isActive ? "active" : ""} ${
+                btn.className ?? ""
+              }`}
+              title={btn.tooltip}
+            >
+              {btn.label}
+            </button>
+
+            {hasSubmenu && openSubmenu === idx && (
+              <div className="bubble-submenu">
+                {btn.submenu!.map((sub, subIdx) => (
+                  <button
+                    key={subIdx}
+                    onClick={() => {
+                      sub.command?.(typedEditor);
+                      setOpenSubmenu(null);
+                    }}
+                    className="bubble-submenu-item"
+                  >
+                    {sub.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </BubbleMenu>
+  );
+};

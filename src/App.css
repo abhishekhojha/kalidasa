@@ -1,3 +1,250 @@
+/* ---------------- Editor Core ---------------- */
 .kali-editorcontent .tiptap.ProseMirror {
   outline: none;
+  line-height: 1.6;
+  font-size: 16px;
+  color: #111827; /* gray-900 */
+  font-family: system-ui, sans-serif;
+}
+
+/* Placeholder */
+.kali-editorcontent p.is-editor-empty:first-child::before {
+  color: #9ca3af; /* gray-400 */
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* ---------------- Bubble Toolbar ---------------- */
+.bubble-toolbar {
+  display: flex;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 6px 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 50;
+  font-family: 'Inter', sans-serif;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.bubble-toolbar-item {
+  position: relative;
+}
+
+.bubble-button {
+  padding: 6px 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.bubble-button:hover {
+  background-color: #f3f4f6; /* light gray */
+  transform: translateY(-1px);
+}
+
+.bubble-button.active {
+  color: #2563eb; /* blue */
+  font-weight: 600;
+  background-color: #eff6ff; /* subtle blue background */
+}
+
+.bubble-submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  z-index: 100;
+  overflow: hidden;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  max-height: 300px;
+  overflow-y: auto;;
+}
+/* Scrollbar styling for modern look */
+.bubble-submenu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bubble-submenu::-webkit-scrollbar-track {
+  background: #f9f9f9;
+  border-radius: 3px;
+}
+
+.bubble-submenu::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+
+.bubble-submenu-item {
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bubble-submenu-item:hover {
+  background-color: #f3f4f6;
+  transform: translateX(2px);
+}
+
+
+/* ---------------- Text Styles ---------------- */
+.kali-editorcontent h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 1rem 0 0.5rem;
+}
+
+.kali-editorcontent h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+}
+
+.kali-editorcontent h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0.75rem 0 0.5rem;
+}
+
+.kali-editorcontent p {
+  margin: 0.5rem 0;
+}
+
+.kali-editorcontent blockquote {
+  border-left: 3px solid #2563eb;
+  padding-left: 1rem;
+  color: #374151;
+  margin: 1rem 0;
+}
+
+.kali-editorcontent code {
+  background-color: #f9fafb; /* gray-50 */
+  color: #d6336c; /* rose-600 */
+  font-size: 0.875rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: ui-monospace, monospace;
+}
+
+.kali-editorcontent pre {
+  background-color: #1f2937; /* gray-800 */
+  color: #f9fafb;
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: ui-monospace, monospace;
+  margin: 1rem 0;
+}
+
+.kali-editorcontent ul {
+  list-style: disc;
+  margin-left: 1.5rem;
+  padding-left: 0.5rem;
+}
+
+.kali-editorcontent ol {
+  list-style: decimal;
+  margin-left: 1.5rem;
+  padding-left: 0.5rem;
+}
+
+.kali-editorcontent a {
+  color: #2563eb;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.kali-editorcontent a:hover {
+  color: #1d4ed8; /* darker blue */
+}
+
+/* Highlight when selected */
+.kali-editorcontent ::selection {
+  background: #bfdbfe; /* blue-200 */
+}
+
+/* slash command */
+
+/* Slash Menu */
+.slash-menu {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 6px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 220px;
+  z-index: 1000;
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.slash-menu-item {
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: #111;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 6px;
+}
+
+.slash-menu-item:hover {
+  background-color: #f3f4f6; /* light gray */
+  transform: translateX(2px);
+}
+
+.slash-menu-item.active {
+  color: #2563eb; /* blue */
+  font-weight: 600;
+  background-color: #eff6ff; /* subtle blue background for active */
+}
+
+.slash-menu-item svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+}
+
+.slash-menu-item:hover svg {
+  transform: scale(1.1);
+}
+
+.embed-youtube-video-item {
+    cursor: move;
+    aspect-ratio: 16 / 9;
+    width: 100%;
 }
