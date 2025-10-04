@@ -1,6 +1,7 @@
 import { mergeAttributes, Node, nodePasteRule } from "@tiptap/core";
 import { ReactNodeViewRenderer, NodeViewWrapper } from "@tiptap/react";
-import { Plugin } from "prosemirror-state";
+import { Plugin, PluginKey } from "prosemirror-state";
+import { createUniversalDropPlugin } from "../lib/useUniversalDrop";
 import React from "react";
 import { Tweet } from "react-tweet";
 
@@ -88,19 +89,25 @@ export const Twitter = Node.create({
 
   addProseMirrorPlugins() {
     return [
-      new Plugin({
-        props: {
-          handleDrop: (view, event) => {
-            const text = event.dataTransfer?.getData("text/plain");
-            if (text && TWITTER_REGEX.test(text)) {
-              // Use the extension command to insert tweet
-              this.editor.commands.setTweet({ src: text });
-              return true;
-            }
-            return false;
+      createUniversalDropPlugin([
+        {
+          predicate: (data) => {
+            const text = data.getData("text/plain") || data.getData("text/uri-list");
+            return !!text && TWITTER_REGEX.test(text);
+          },
+          handle: (view, event, data) => {
+            const text = data.getData("text/plain") || data.getData("text/uri-list");
+            if (!text || !TWITTER_REGEX.test(text)) return false;
+            // Use the extension command to insert tweet
+            view.dispatch(
+              view.state.tr.replaceSelectionWith(
+                view.state.schema.nodes.twitter.create({ src: text })
+              ).scrollIntoView()
+            );
+            return true;
           },
         },
-      }),
+      ], { Plugin, PluginKey }, "twitter-drop"),
     ];
   },
 });

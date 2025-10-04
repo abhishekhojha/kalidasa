@@ -24,7 +24,8 @@ export const SlashCommand = Extension.create({
 
           return {
             onStart: (props: any) => {
-              component = new ReactRenderer(SlashMenu, { props, editor: props.editor });
+              // Forward ALL props to SlashMenu
+              component = new ReactRenderer((p: any) => <SlashMenu {...p} />, { props, editor: props.editor });
               document.body.appendChild(component.element);
             },
             onUpdate: (props: any) => component?.updateProps(props),

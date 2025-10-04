@@ -10,6 +10,8 @@ import "./App.css";
 import { Youtube } from "./extensions/Youtube";
 import { Twitter } from "./extensions/Twitter";
 import { ImageNode } from "./extensions/ImageNode";
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
 
 export interface EditorHandle {
   getHTML: () => string;
@@ -28,7 +30,16 @@ interface EditorProps {
 export const Editor = forwardRef<EditorHandle, EditorProps>(
   ({ extensions = [], placeholder = "Write here...", onUpdate, children }, ref) => {
     const editor = useEditor({
-      extensions: [StarterKit,Youtube,Twitter, Placeholder.configure({ placeholder }),SlashCommand ,...extensions],
+      extensions: [
+        StarterKit,
+        TaskList,
+        TaskItem,
+        Youtube,
+        Twitter,
+        Placeholder.configure({ placeholder }),
+        SlashCommand,
+        ...extensions
+      ],
       content: "",
       onUpdate: ({ editor }) => onUpdate?.(editor.getHTML()),
     });

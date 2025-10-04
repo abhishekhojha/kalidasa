@@ -1,3 +1,58 @@
+/* Tiptap Task List Styling */
+.kali-editorcontent ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.5em 0;
+}
+.kali-editorcontent ul[data-type="taskList"] li {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-bottom: 0.25em;
+}
+.kali-editorcontent ul[data-type="taskList"] {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  flex: 1;
+}
+.kali-editorcontent ul[data-type="taskList"] li input[type="checkbox"] {
+  margin-right: 0.5em;
+  accent-color: #2563eb;
+  width: 1.1em;
+  height: 1.1em;
+}
+/* Custom Scrollbar for Slash Menu and Menus */
+div.slash-menu,
+div.bubble-submenu {
+  scrollbar-width: thin;
+  scrollbar-color: #b4b4b4 #f3f4f6;
+}
+
+div.slash-menu::-webkit-scrollbar,
+div.bubble-submenu::-webkit-scrollbar {
+  width: 7px;
+  background: #f3f4f6;
+}
+
+div.slash-menu::-webkit-scrollbar-thumb,
+div.bubble-submenu::-webkit-scrollbar-thumb {
+  background: #b4b4b4;
+  border-radius: 6px;
+  min-height: 24px;
+  border: 2px solid #f3f4f6;
+}
+
+div.slash-menu::-webkit-scrollbar-thumb:hover,
+div.bubble-submenu::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
+
+div.slash-menu::-webkit-scrollbar-track,
+div.bubble-submenu::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 6px;
+}
 /* ---------------- Editor Core ---------------- */
 .kali-editorcontent .tiptap.ProseMirror {
   outline: none;
@@ -29,6 +84,21 @@
   z-index: 50;
   font-family: 'Inter', sans-serif;
   transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* Dynamic alignment for bubble-toolbar */
+.bubble-toolbar[data-position-mode='center'] {
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+.bubble-toolbar[data-position-mode='left'] {
+  left: 0 !important;
+  transform: none !important;
+}
+.bubble-toolbar[data-position-mode='right'] {
+  right: 0 !important;
+  left: auto !important;
+  transform: none !important;
 }
 
 .bubble-toolbar-item {
@@ -144,7 +214,6 @@
 }
 
 .kali-editorcontent code {
-  background-color: #f9fafb; /* gray-50 */
   color: #d6336c; /* rose-600 */
   font-size: 0.875rem;
   padding: 2px 4px;

@@ -12,6 +12,7 @@ import {
   Heading3,
   Image as ImageIcon,
   ListOrdered,
+  CheckSquare2,
 } from "lucide-react";
 import React from "react";
 
@@ -23,6 +24,15 @@ export interface SlashCommandItem {
 }
 
 export const slashCommands: SlashCommandItem[] = [
+  {
+    title: "Task List",
+    icon: (
+      <CheckSquare2 size={16} />
+    ),
+    description: "Insert a checkbox task list",
+    command: ({ editor, range }) =>
+      editor.chain().focus().deleteRange(range).toggleTaskList().run(),
+  },
   {
     title: "Paragraph",
     icon: <Type size={16} />,

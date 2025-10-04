@@ -1,6 +1,7 @@
 // extensions/Embeds.ts
 import { Node, mergeAttributes, nodePasteRule, type Command } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
+import { ResizableBox } from "../lib/ResizableBox";
 import { Plugin, PluginKey } from "prosemirror-state";
 import React from "react";
 import { Tweet } from "react-tweet";
@@ -15,18 +16,31 @@ function convertYouTube(url: string) {
   return match ? `https://www.youtube.com/embed/${match[1]}` : url;
 }
 
-const YouTubeComponent = ({ node }: { node: any }) => {
+const YouTubeComponent = ({ node, updateAttributes, selected }: { node: any; updateAttributes: (attrs: any) => void; selected?: boolean }) => {
+  // Default size if not set
+  const width = node.attrs.width || 560;
+  const height = node.attrs.height || 315;
   return (
-    <div className="my-4 flex justify-center">
-      <iframe
-        width={560}
-        height={315}
-        src={node.attrs.src}
-        title="YouTube video player"
-        frameBorder={0}
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowFullScreen
-      />
+    <div className="my-4 flex justify-center" data-node-view-wrapper>
+      <ResizableBox
+        width={width}
+        height={height}
+        minWidth={200}
+        minHeight={120}
+        aspectRatio={true}
+        selected={!!selected}
+        onResize={({ width, height }) => updateAttributes({ width, height })}
+      >
+        <iframe
+          width={width}
+          height={height}
+          src={node.attrs.src}
+          title="YouTube video player"
+          frameBorder={0}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+        />
+      </ResizableBox>
     </div>
   );
 };
@@ -40,6 +54,8 @@ export const Youtube = Node.create<YoutubeOptions>({
   addAttributes() {
     return {
       src: { default: null },
+      width: { default: 560 },
+      height: { default: 315 },
     };
   },
   parseHTML() {

@@ -1,4 +1,5 @@
 export { Editor } from "./Editor";
+export type { EditorHandle } from "./Editor";
 export { BubbleToolbar } from "./BubbleToolbar/BubbleToolbar";
 export type { BubbleToolbarButton } from "./BubbleToolbar/BubbleToolbar";
 export {
