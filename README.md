@@ -67,4 +67,53 @@ export default defineConfig([
   },
 ])
 ```
-# kalidasa
+
+# BubbleToolbar Dynamic Positioning
+
+## Features
+- Floating toolbar that dynamically positions itself above, below, left, right, or centered on the text selection.
+- Prevents overflow on both left and right edges of the viewport.
+- Submenus are always visible and not clipped.
+
+## Usage
+
+1. **Import and Use the Toolbar**
+   ```tsx
+   import { BubbleToolbar, BubbleToolbarButton } from './BubbleToolbar/BubbleToolbar';
+   // ...
+   <BubbleToolbar buttons={yourButtonsArray} />
+   ```
+
+2. **Dynamic Positioning**
+   - The toolbar automatically anchors to the selection:
+     - Centered if there is enough space.
+     - Left-aligned if near the left edge.
+     - Right-aligned if near the right edge.
+   - The toolbar never overflows the viewport.
+
+3. **Submenus**
+   - Submenus are supported via the `submenu` property on a button.
+   - Submenus are always visible and not clipped by the toolbar.
+
+4. **Styling**
+   - The toolbar uses CSS data attributes:
+     - `data-position-mode="center" | "left" | "right"`
+     - You can style these in your CSS for custom alignment effects.
+
+## Example Button Array
+```ts
+const buttons: BubbleToolbarButton[] = [
+  {
+    label: 'B',
+    command: (editor) => editor.chain().focus().toggleBold().run(),
+    isActive: (editor) => editor.isActive('bold'),
+    tooltip: 'Bold',
+  },
+  // ... more buttons ...
+];
+```
+
+## Troubleshooting
+- If the toolbar or submenus are clipped, ensure no parent container has `overflow: hidden` or `overflow: auto` that would cut off absolutely positioned children.
+- The toolbar is measured after first render for perfect positioning.
+
