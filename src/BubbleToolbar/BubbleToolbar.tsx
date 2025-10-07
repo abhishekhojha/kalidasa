@@ -53,6 +53,8 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ buttons = [] }) =>
       const start = editor.view.coordsAtPos(from);
       const end = editor.view.coordsAtPos(to);
       const selectionLeft = Math.min(start.left, end.left);
+      const selectionRight = Math.max(start.right, end.right);
+      const selectionCenter = (selectionLeft + selectionRight) / 2;
       const toolbarHeight = toolbarRef.current?.offsetHeight || 40;
       const toolbarWidth = toolbarRef.current?.offsetWidth || 200;
       const padding = 8;
@@ -67,21 +69,23 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ buttons = [] }) =>
       if (!placeAbove && top + toolbarHeight > viewportHeight) {
         top = viewportHeight - toolbarHeight - padding;
       }
-      // Always align left to selection
-      let left = selectionLeft + window.scrollX;
-      let maxToolbarWidth = viewportWidth - 2 * padding;
-      let width = toolbarWidth;
-      if (toolbarWidth > maxToolbarWidth) {
-        width = maxToolbarWidth;
-      }
+      // Center toolbar above selection if possible
+      let left = selectionCenter - toolbarWidth / 2 + window.scrollX;
+      let positionMode: 'center' | 'left' | 'right' = 'center';
       const minLeft = padding;
-      const maxLeft = viewportWidth - width - padding;
-      left = Math.min(Math.max(left, minLeft), maxLeft);
+      const maxLeft = viewportWidth - toolbarWidth - padding;
+      if (left < minLeft) {
+        left = minLeft;
+        positionMode = 'left';
+      } else if (left > maxLeft) {
+        left = maxLeft;
+        positionMode = 'right';
+      }
       setPosition({
         top,
         left,
         placeAbove,
-        positionMode: 'left',
+        positionMode,
       });
     };
     // First render: let toolbar render offscreen, then measure
