@@ -45,7 +45,9 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ buttons = [] }) =>
   useEffect(() => {
     if (!editor) return;
     const updatePosition = () => {
-      if (!editor || editor.state.selection.empty) {
+      // Hide toolbar if editor loses focus or selection is empty
+      const isFocused = editor?.view.hasFocus();
+      if (!editor || editor.state.selection.empty || !isFocused) {
         setPosition(null);
         return;
       }
@@ -100,10 +102,26 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ buttons = [] }) =>
     editor.on('selectionUpdate', updatePosition);
     window.addEventListener('resize', updatePosition);
     window.addEventListener('scroll', updatePosition, true);
+
+    // Click outside to close toolbar
+    function handleDocumentClick(event: MouseEvent) {
+      const toolbarEl = toolbarRef.current;
+      const editorEl = editor?.view.dom;
+      if (!toolbarEl || !editorEl) return;
+      if (
+        !toolbarEl.contains(event.target as Node) &&
+        !editorEl.contains(event.target as Node)
+      ) {
+        setPosition(null);
+      }
+    }
+    document.addEventListener('mousedown', handleDocumentClick);
+
     return () => {
       editor.off('selectionUpdate', updatePosition);
       window.removeEventListener('resize', updatePosition);
       window.removeEventListener('scroll', updatePosition, true);
+      document.removeEventListener('mousedown', handleDocumentClick);
     };
   }, [editor, measured]);
 
