@@ -41,6 +41,7 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
         ...extensions
       ],
       content: "",
+      immediatelyRender: false, // Fix SSR hydration error for Next.js
       onUpdate: ({ editor }) => onUpdate?.(editor.getHTML()),
     });
 
@@ -50,7 +51,7 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
         getHTML: () => editor?.getHTML() ?? "",
         setContent: (content: string) => editor?.commands.setContent(content),
         clear: () => editor?.commands.clearContent(),
-        chain: () => editor?.chain(),
+        chain: () => editor!.chain(),
       }),
       [editor]
     );
