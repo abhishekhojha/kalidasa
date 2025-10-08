@@ -30,13 +30,16 @@ interface BubbleToolbarProps {
   buttons?: BubbleToolbarButton[];
 }
 
-
-export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ buttons = [] }) => {
+export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({
+  buttons = [],
+}) => {
   const { editor } = useEditorContext();
-  const [position, setPosition] = useState<
-    { top: number; left: number; placeAbove: boolean; positionMode: 'center' | 'left' | 'right' }
-    | null
-  >(null);
+  const [position, setPosition] = useState<{
+    top: number;
+    left: number;
+    placeAbove: boolean;
+    positionMode: "center" | "left" | "right";
+  } | null>(null);
   const [openSubmenu, setOpenSubmenu] = useState<number | null>(null);
   const toolbarRef = React.useRef<HTMLDivElement>(null);
   const [measured, setMeasured] = useState(false);
@@ -73,15 +76,15 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ buttons = [] }) =>
       }
       // Center toolbar above selection if possible
       let left = selectionCenter - toolbarWidth / 2 + window.scrollX;
-      let positionMode: 'center' | 'left' | 'right' = 'center';
+      let positionMode: "center" | "left" | "right" = "center";
       const minLeft = padding;
       const maxLeft = viewportWidth - toolbarWidth - padding;
       if (left < minLeft) {
         left = minLeft;
-        positionMode = 'left';
+        positionMode = "left";
       } else if (left > maxLeft) {
         left = maxLeft;
-        positionMode = 'right';
+        positionMode = "right";
       }
       setPosition({
         top,
@@ -89,6 +92,9 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ buttons = [] }) =>
         placeAbove,
         positionMode,
       });
+      setTimeout(() => {
+        updatePosition()
+      }, 0);
     };
     // First render: let toolbar render offscreen, then measure
     if (!measured) {
@@ -99,9 +105,9 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ buttons = [] }) =>
     } else {
       updatePosition();
     }
-    editor.on('selectionUpdate', updatePosition);
-    window.addEventListener('resize', updatePosition);
-    window.addEventListener('scroll', updatePosition, true);
+    editor.on("selectionUpdate", updatePosition);
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
 
     // Click outside to close toolbar
     function handleDocumentClick(event: MouseEvent) {
@@ -115,13 +121,13 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ buttons = [] }) =>
         setPosition(null);
       }
     }
-    document.addEventListener('mousedown', handleDocumentClick);
+    document.addEventListener("mousedown", handleDocumentClick);
 
     return () => {
-      editor.off('selectionUpdate', updatePosition);
-      window.removeEventListener('resize', updatePosition);
-      window.removeEventListener('scroll', updatePosition, true);
-      document.removeEventListener('mousedown', handleDocumentClick);
+      editor.off("selectionUpdate", updatePosition);
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+      document.removeEventListener("mousedown", handleDocumentClick);
     };
   }, [editor, measured]);
 
@@ -133,21 +139,22 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ buttons = [] }) =>
       ref={toolbarRef}
       className="bubble-toolbar"
       style={{
-        position: 'absolute',
+        position: "absolute",
         top: position.top,
         left: position.left,
         zIndex: 1000,
-        maxWidth: 'calc(100vw - 16px)',
-        width: 'auto',
-        overflowX: 'auto',
-        overflow: 'visible',
-        whiteSpace: 'nowrap',
-        boxSizing: 'border-box',
-        transition: 'top 0.15s, left 0.15s',
-        visibility: measured ? 'visible' : 'hidden',
-        transform: 'none',
+        maxWidth: "calc(100vw - 16px)",
+        width: "auto",
+        overflowX: "auto",
+        overflow: "visible",
+        whiteSpace: "nowrap",
+        boxSizing: "border-box",
+        transition: "top 0.15s, left 0.15s",
+        visibility: measured ? "visible" : "hidden",
+        transform: "none",
       }}
-  data-place-above={position.placeAbove} data-position-mode={position.positionMode}
+      data-place-above={position.placeAbove}
+      data-position-mode={"position.positionMode"}
     >
       {buttons.map((btn, idx) => {
         const isActive = btn.isActive?.(typedEditor);
@@ -163,7 +170,9 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ buttons = [] }) =>
                   setOpenSubmenu(null);
                 }
               }}
-              className={`bubble-button ${isActive ? 'active' : ''} ${btn.className ?? ''}`}
+              className={`bubble-button ${isActive ? "active" : ""} ${
+                btn.className ?? ""
+              }`}
               title={btn.tooltip}
             >
               {btn.label}

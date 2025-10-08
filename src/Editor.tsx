@@ -12,6 +12,7 @@ import { Twitter } from "./extensions/Twitter";
 import { ImageNode } from "./extensions/ImageNode";
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
+import { BubbleToolbar } from "./BubbleToolbar/BubbleToolbar";
 
 export interface EditorHandle {
   getHTML: () => string;
@@ -64,6 +65,7 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
       <EditorProvider editor={editor}>
         <EditorContent editor={editor} className="prose kali-editorcontent" />
         {editor && children}
+        {/* <BubbleToolbar buttons={[{label:"Copy"}]} /> */}
       </EditorProvider>
     );
   }
