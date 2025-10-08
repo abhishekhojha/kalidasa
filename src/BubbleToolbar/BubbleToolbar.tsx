@@ -92,9 +92,9 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({
         placeAbove,
         positionMode,
       });
-      setTimeout(() => {
-        updatePosition()
-      }, 0);
+      // setTimeout(() => {
+      //   updatePosition()
+      // }, 0);
     };
     // First render: let toolbar render offscreen, then measure
     if (!measured) {
