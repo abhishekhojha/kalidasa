@@ -51,7 +51,7 @@ const ImageNodeComponent: React.FC<any> = ({ node, updateAttributes, selected })
   }, [updateAttributes, currentWidth]);
   return (
     <div
-      className={`my-4 flex justify-center w-full ${isFullWidth ? 'full-width-image' : ''}`}
+      className={`my-4 flex w-full ${isFullWidth ? 'full-width-image' : ''}`}
       data-node-view-wrapper
       style={{ width: "100%" }}
       title={isFullWidth ? "Double-click to constrain width" : "Double-click for full width"}
