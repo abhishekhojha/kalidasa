@@ -82,10 +82,8 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ buttons = [] }) =>
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log("Submenu command executing:", sub.label);
                       try {
                         sub.command?.(typedEditor);
-                        console.log("Submenu command executed successfully");
                       } catch (error) {
                         console.error("Submenu command error:", error);
                       }
