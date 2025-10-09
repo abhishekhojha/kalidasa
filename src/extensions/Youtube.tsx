@@ -1,5 +1,5 @@
 import React from "react";
-import { Node, mergeAttributes, type Command } from "@tiptap/core";
+import { Node, mergeAttributes, type Command, nodePasteRule } from "@tiptap/core";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { createUniversalDropPlugin } from "../lib/useUniversalDrop";
 import { ReactNodeViewRenderer } from "@tiptap/react";
@@ -17,8 +17,15 @@ declare module "@tiptap/core" {
   }
 }
 
+// YouTube URL regex patterns
+// Global version for paste rules (needs global flag for matchAll)
+const YOUTUBE_PASTE_REGEX = /https?:\/\/(?:(?:www\.)?youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]+)(?:\S+)?/gi;
+
+// Non-global version for testing and matching - handles full URLs
+const YOUTUBE_REGEX = /https?:\/\/(?:(?:www\.)?youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]+)/;
+
 function convertToEmbed(url: string) {
-  const watchRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/;
+  const watchRegex = YOUTUBE_REGEX;
   const match = url.match(watchRegex);
 
   if (match && match[1]) {
@@ -128,6 +135,19 @@ export const Youtube = Node.create<YoutubeOptions>({
     };
   },
 
+  addPasteRules() {
+    return [
+      nodePasteRule({
+        find: YOUTUBE_PASTE_REGEX,
+        type: this.type,
+        getAttributes: (match) => {
+          const src = convertToEmbed(match[0]);
+          return { src };
+        },
+      }),
+    ];
+  },
+
   addProseMirrorPlugins() {
     return [
       createUniversalDropPlugin([
@@ -135,7 +155,7 @@ export const Youtube = Node.create<YoutubeOptions>({
           predicate: (data) => {
             try {
               const text = data.getData("text/plain") || data.getData("text/uri-list");
-              return !!text && (text.includes("youtube.com") || text.includes("youtu.be"));
+              return !!text && YOUTUBE_REGEX.test(text);
             } catch (error) {
               console.error("YouTube predicate error:", error);
               return false;

@@ -5,7 +5,11 @@ import { createUniversalDropPlugin } from "../lib/useUniversalDrop";
 import React from "react";
 import { Tweet } from "react-tweet";
 
-// Regex to detect Twitter/X status URLs
+// Regex to detect Twitter/X status URLs (for paste rules - needs global flag)
+const TWITTER_PASTE_REGEX =
+  /https?:\/\/(?:www\.)?(?:twitter\.com|x\.com)\/[A-Za-z0-9_]+\/status\/([0-9]+)/gi;
+
+// Regex for testing/matching (non-global for reuse)
 const TWITTER_REGEX =
   /https?:\/\/(?:www\.)?(?:twitter\.com|x\.com)\/[A-Za-z0-9_]+\/status\/([0-9]+)/i;
 
@@ -80,7 +84,7 @@ export const Twitter = Node.create({
   addPasteRules() {
     return [
       nodePasteRule({
-        find: TWITTER_REGEX,
+        find: TWITTER_PASTE_REGEX,
         type: this.type,
         getAttributes: (match) => ({ src: match[0] }),
       }),
