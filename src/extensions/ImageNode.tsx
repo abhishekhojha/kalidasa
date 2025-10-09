@@ -37,22 +37,27 @@ const ImageNodeComponent: React.FC<any> = ({ node, updateAttributes, selected })
   let width = node.attrs.width || "100%"; // Responsive width
   let height = "auto"; // Always auto height for proper aspect ratio
   const currentWidth = node.attrs.maxWidth || 400; // Use stored maxWidth for ResizableBox
-  let maxWidth = currentWidth; // Use current maxWidth directly
-  const isFullWidth = width === "100%"; // Check if responsive mode
+  let maxWidth = node.attrs.maxWidth; // Use maxWidth from attributes (can be null for full width)
+  const isFullWidth = width === "100%" && !maxWidth; // True full width when no maxWidth constraint
 
   // Simple resize handler - throttling is now handled in ResizableBox
   const handleResize = React.useCallback((size: { width: number | "100%"; height: number | "auto" }) => {
-    const width = typeof size.width === "number" ? size.width : currentWidth;
-    updateAttributes({ maxWidth: width });
+    if (size.width === "100%") {
+      updateAttributes({ width: "100%", maxWidth: null });
+    } else {
+      const width = typeof size.width === "number" ? size.width : currentWidth;
+      updateAttributes({ width: "100%", maxWidth: width });
+    }
   }, [updateAttributes, currentWidth]);
   return (
     <div
-      className="my-4 flex justify-center w-full"
+      className={`my-4 flex justify-center w-full ${isFullWidth ? 'full-width-image' : ''}`}
       data-node-view-wrapper
       style={{ width: "100%" }}
+      title={isFullWidth ? "Double-click to constrain width" : "Double-click for full width"}
     >
       <ResizableBox
-        width={currentWidth}
+        width={isFullWidth ? "100%" : currentWidth}
         height="auto"
         minWidth={200}
         minHeight={30}
@@ -61,15 +66,24 @@ const ImageNodeComponent: React.FC<any> = ({ node, updateAttributes, selected })
         selected={!!selected}
         onResize={handleResize}
       >
-        {({ dragging }: { dragging: boolean }) => (
+        {({ dragging, isFullWidth: boxIsFullWidth, setFullWidth }: { dragging: boolean; isFullWidth: boolean; setFullWidth: () => void }) => (
           <img
             src={node.attrs.src}
             alt={node.attrs.alt || ""}
             title={node.attrs.title || ""}
             onLoad={handleImageLoad}
+            onDoubleClick={() => {
+              if (isFullWidth) {
+                // Switch back to constrained width
+                updateAttributes({ width: "100%", maxWidth: 400 });
+              } else {
+                // Switch to true full width
+                setFullWidth();
+              }
+            }}
             style={{
               width: "100%",
-              maxWidth: `${maxWidth}px`,
+              maxWidth: maxWidth ? `${maxWidth}px` : "none",
               height: "auto",
               display: "block",
               pointerEvents: dragging ? "none" : undefined,
