@@ -1,7 +1,7 @@
 {
   "name": "kalidas",
   "private": false,
-  "version": "2.1.1",
+  "version": "2.1.2",
   "type": "module",
   "main": "./dist/kalidas.umd.js",
   "module": "./dist/kalidas.es.js",
