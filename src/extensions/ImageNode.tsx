@@ -22,41 +22,56 @@ declare module "@tiptap/core" {
 }
 
 const ImageNodeComponent: React.FC<any> = ({ node, updateAttributes, selected }) => {
-  let width = node.attrs.width || 320;
-  let height = node.attrs.height || 180;
-  let winwidth = window.innerWidth - 20;
-  const maxWidth = winwidth;
-  const isFullWidth = width === "100%";
+  // Use responsive width with max-width constraint
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    // Ensure attributes are set for responsive behavior
+    if (!node.attrs.width || !node.attrs.height || !node.attrs.maxWidth) {
+      updateAttributes({ 
+        width: "100%", 
+        height: "auto",
+        maxWidth: 400 // Default max-width in pixels
+      });
+    }
+  };
+
+  let width = node.attrs.width || "100%"; // Responsive width
+  let height = "auto"; // Always auto height for proper aspect ratio
+  let maxWidth = node.attrs.maxWidth || 400; // Configurable max-width
+  const currentWidth = maxWidth; // Use maxWidth as the resizable dimension
+  const isFullWidth = width === "100%"; // Check if responsive mode
   return (
     <div
-      className={`my-4 flex justify-center${isFullWidth ? " w-full" : ""}`}
+      className="my-4 flex justify-center w-full"
       data-node-view-wrapper
-      style={isFullWidth ? { width: "100%" } : {}}
+      style={{ width: "100%" }}
     >
       <ResizableBox
-        width={width}
-        height={height}
-        minWidth={50}
+        width={currentWidth}
+        height="auto"
+        minWidth={200}
         minHeight={30}
-        maxWidth={maxWidth}
+        maxWidth={800}
         aspectRatio={true}
         selected={!!selected}
-        onResize={({ width, height }) => updateAttributes({ width, height })}
+        onResize={({ width, height }) => updateAttributes({ maxWidth: width, width: "100%", height: "auto" })}
       >
-        {({ dragging, isFullWidth }: { dragging: boolean; isFullWidth: boolean }) => (
-          <img
-            src={node.attrs.src}
-            alt={node.attrs.alt || ""}
-            title={node.attrs.title || ""}
-            width={isFullWidth ? "100%" : width}
-            height={height}
-            style={{
-              maxWidth: "100%",
-              width: isFullWidth ? "100%" : width,
-              display: "block",
-              pointerEvents: dragging ? "none" : undefined,
-            }}
-          />
+        {({ dragging }: { dragging: boolean }) => (
+          <div style={{ width: "100%", maxWidth: `${maxWidth}px` }}>
+            <img
+              src={node.attrs.src}
+              alt={node.attrs.alt || ""}
+              title={node.attrs.title || ""}
+              width="100%"
+              height="auto"
+              onLoad={handleImageLoad}
+              style={{
+                width: "100%",
+                height: "auto",
+                display: "block",
+                pointerEvents: dragging ? "none" : undefined,
+              }}
+            />
+          </div>
         )}
       </ResizableBox>
     </div>
@@ -73,8 +88,9 @@ export const ImageNode = Node.create<ImageNodeOptions>({
       src: { default: null },
       alt: { default: null },
       title: { default: null },
-      width: { default: 320 },
-      height: { default: 180 },
+      width: { default: "100%" },
+      height: { default: "auto" },
+      maxWidth: { default: 400 },
     };
   },
 
@@ -112,16 +128,45 @@ export const ImageNode = Node.create<ImageNodeOptions>({
             const files = data.files;
             const upload = extension.options.upload;
             if (!files?.length || !upload) return false;
-            Array.from(files).forEach(async (file) => {
-              const url = await upload(file);
-              if (!url) return;
-              const { state } = view;
-              const { tr } = state;
-              const { from, to } = state.selection;
-              const node = state.schema.nodes.imageNode.create({ src: url });
-              tr.replaceRangeWith(from, to, node);
-              view.dispatch(tr.scrollIntoView());
-            });
+            
+            // Handle async uploads without blocking the handler
+            const handleUploads = async () => {
+              try {
+                // Upload all files and wait for all uploads to complete
+                const uploadPromises = Array.from(files).map(async (file) => {
+                  try {
+                    const url = await upload(file);
+                    return url;
+                  } catch (error) {
+                    console.warn('Failed to upload file:', file.name, error);
+                    return null;
+                  }
+                });
+                
+                const uploadedUrls = await Promise.all(uploadPromises);
+                const validUrls = uploadedUrls.filter(url => url !== null);
+                
+                if (validUrls.length === 0) return;
+                
+                // Create a single transaction for all images
+                const { state } = view;
+                const { tr } = state;
+                let { from } = state.selection;
+                
+                // Insert images one after another
+                validUrls.forEach((url, index) => {
+                  const node = state.schema.nodes.imageNode.create({ src: url });
+                  tr.insert(from + index, node);
+                });
+                
+                view.dispatch(tr.scrollIntoView());
+              } catch (error) {
+                console.warn('Error handling file drop:', error);
+              }
+            };
+            
+            // Start the async operation but don't wait for it
+            handleUploads();
             return true;
           },
         },
