@@ -36,9 +36,15 @@ const ImageNodeComponent: React.FC<any> = ({ node, updateAttributes, selected })
 
   let width = node.attrs.width || "100%"; // Responsive width
   let height = "auto"; // Always auto height for proper aspect ratio
-  let maxWidth = node.attrs.maxWidth || 400; // Configurable max-width
-  const currentWidth = maxWidth; // Use maxWidth as the resizable dimension
+  const currentWidth = node.attrs.maxWidth || 400; // Use stored maxWidth for ResizableBox
+  let maxWidth = currentWidth; // Use current maxWidth directly
   const isFullWidth = width === "100%"; // Check if responsive mode
+
+  // Simple resize handler - throttling is now handled in ResizableBox
+  const handleResize = React.useCallback((size: { width: number | "100%"; height: number | "auto" }) => {
+    const width = typeof size.width === "number" ? size.width : currentWidth;
+    updateAttributes({ maxWidth: width });
+  }, [updateAttributes, currentWidth]);
   return (
     <div
       className="my-4 flex justify-center w-full"
@@ -53,25 +59,25 @@ const ImageNodeComponent: React.FC<any> = ({ node, updateAttributes, selected })
         maxWidth={800}
         aspectRatio={true}
         selected={!!selected}
-        onResize={({ width, height }) => updateAttributes({ maxWidth: width, width: "100%", height: "auto" })}
+        onResize={handleResize}
       >
         {({ dragging }: { dragging: boolean }) => (
-          <div style={{ width: "100%", maxWidth: `${maxWidth}px` }}>
-            <img
-              src={node.attrs.src}
-              alt={node.attrs.alt || ""}
-              title={node.attrs.title || ""}
-              width="100%"
-              height="auto"
-              onLoad={handleImageLoad}
-              style={{
-                width: "100%",
-                height: "auto",
-                display: "block",
-                pointerEvents: dragging ? "none" : undefined,
-              }}
-            />
-          </div>
+          <img
+            src={node.attrs.src}
+            alt={node.attrs.alt || ""}
+            title={node.attrs.title || ""}
+            onLoad={handleImageLoad}
+            style={{
+              width: "100%",
+              maxWidth: `${maxWidth}px`,
+              height: "auto",
+              display: "block",
+              pointerEvents: dragging ? "none" : undefined,
+              willChange: dragging ? "transform" : "auto",
+              backfaceVisibility: "hidden",
+              transform: "translateZ(0)", // Force hardware acceleration
+            }}
+          />
         )}
       </ResizableBox>
     </div>
