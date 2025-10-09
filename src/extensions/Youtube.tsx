@@ -133,17 +133,27 @@ export const Youtube = Node.create<YoutubeOptions>({
       createUniversalDropPlugin([
         {
           predicate: (data) => {
-            const text = data.getData("text/plain") || data.getData("text/uri-list");
-            return !!text && (text.includes("youtube.com") || text.includes("youtu.be"));
+            try {
+              const text = data.getData("text/plain") || data.getData("text/uri-list");
+              return !!text && (text.includes("youtube.com") || text.includes("youtu.be"));
+            } catch (error) {
+              console.error("YouTube predicate error:", error);
+              return false;
+            }
           },
           handle: (view, event, data) => {
-            const text = data.getData("text/plain") || data.getData("text/uri-list");
-            if (!text) return false;
-            const src = convertToEmbed(text);
-            const { from, to } = view.state.selection;
-            const node = view.state.schema.nodes.youtube.create({ src });
-            view.dispatch(view.state.tr.replaceRangeWith(from, to, node).scrollIntoView());
-            return true;
+            try {
+              const text = data.getData("text/plain") || data.getData("text/uri-list");
+              if (!text) return false;
+              const src = convertToEmbed(text);
+              const { from, to } = view.state.selection;
+              const node = view.state.schema.nodes.youtube.create({ src });
+              view.dispatch(view.state.tr.replaceRangeWith(from, to, node).scrollIntoView());
+              return true;
+            } catch (error) {
+              console.error("YouTube handle error:", error);
+              return false;
+            }
           },
         },
       ], { Plugin, PluginKey }, "youtube-drop"),

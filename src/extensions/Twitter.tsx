@@ -92,19 +92,29 @@ export const Twitter = Node.create({
       createUniversalDropPlugin([
         {
           predicate: (data) => {
-            const text = data.getData("text/plain") || data.getData("text/uri-list");
-            return !!text && TWITTER_REGEX.test(text);
+            try {
+              const text = data.getData("text/plain") || data.getData("text/uri-list");
+              return !!text && TWITTER_REGEX.test(text);
+            } catch (error) {
+              console.error("Twitter predicate error:", error);
+              return false;
+            }
           },
           handle: (view, event, data) => {
-            const text = data.getData("text/plain") || data.getData("text/uri-list");
-            if (!text || !TWITTER_REGEX.test(text)) return false;
-            // Use the extension command to insert tweet
-            view.dispatch(
-              view.state.tr.replaceSelectionWith(
-                view.state.schema.nodes.twitter.create({ src: text })
-              ).scrollIntoView()
-            );
-            return true;
+            try {
+              const text = data.getData("text/plain") || data.getData("text/uri-list");
+              if (!text || !TWITTER_REGEX.test(text)) return false;
+              // Use the extension command to insert tweet
+              view.dispatch(
+                view.state.tr.replaceSelectionWith(
+                  view.state.schema.nodes.twitter.create({ src: text })
+                ).scrollIntoView()
+              );
+              return true;
+            } catch (error) {
+              console.error("Twitter handle error:", error);
+              return false;
+            }
           },
         },
       ], { Plugin, PluginKey }, "twitter-drop"),

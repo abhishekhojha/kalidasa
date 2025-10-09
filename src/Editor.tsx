@@ -4,6 +4,7 @@ import { useEditor, EditorContent, type Editor as TiptapEditor } from "@tiptap/r
 import type { Extension } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
+import Link from "@tiptap/extension-link";
 import { EditorProvider } from "./EditorContext";
 import {SlashCommand} from "./SlashCommand/SlashCommand";
 import "./App.css";
@@ -35,6 +36,11 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
         StarterKit,
         TaskList,
         TaskItem,
+        Link.configure({
+          openOnClick: false,
+          autolink: true,
+          defaultProtocol: 'https',
+        }),
         Youtube,
         Twitter,
         Placeholder.configure({ placeholder }),

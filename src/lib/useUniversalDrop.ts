@@ -7,9 +7,9 @@ export type UniversalDropHandler = {
   handle: (view: any, event: DragEvent, data: DataTransfer) => boolean;
 };
 
-export function createUniversalDropPlugin(handlers: UniversalDropHandler[], pluginKey: any, keyName: string) {
-  return new pluginKey.Plugin({
-    key: new pluginKey.PluginKey(keyName),
+export function createUniversalDropPlugin(handlers: UniversalDropHandler[], { Plugin, PluginKey }: any, keyName: string) {
+  return new Plugin({
+    key: new PluginKey(keyName),
     props: {
       handleDrop(view: any, event: DragEvent) {
         const data = event.dataTransfer;
